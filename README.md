@@ -1,5 +1,4 @@
-Got it ✅ I’ll format your content so it’s clean and **Markdown-friendly** for a `README.md`.
-Here’s the properly formatted version:
+#CCS112_LAB_EXAM_G10
 
 ````markdown
 # Simple Library Management System (Web-based)
