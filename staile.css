@@ -1,0 +1,40 @@
+* {
+    font-family: 'Courier New', Courier, monospace;
+    padding: 5px;
+}
+
+h1, h3 {
+    background-color: #ffffff;
+    border-radius: 10px;
+}
+
+a {
+    background-color: white;
+    border-radius: 10px;
+    color: black;          /* change text color */
+    text-decoration: none; /* remove underline */
+}
+
+a:hover {
+    color: red;
+    transition-duration: 0.3s;
+}
+
+body {
+    background-color: rgb(255, 148, 148);
+    color: black;
+}
+
+.myBtn {
+    border-radius: 10px;
+}
+
+.myBtn:hover {
+    background-color: black;
+    color: white;
+    transition-duration: 0.3s;
+}
+
+table {
+    background-color: white;
+}
