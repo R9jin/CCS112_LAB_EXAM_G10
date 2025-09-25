@@ -8,10 +8,21 @@ if ($conn->connect_error) {
 }
 
 /* ===========================
-   DELETE FEATURE
+CREATE NEW BOOK (Placeholder)
+   =========================== */
+// TODO: Student 1 will implement this feature.
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_book'])) {
+    // Placeholder logic
+    $_SESSION['message'] = "Add book feature not yet implemented.";
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+/* ===========================
+EDIT / REMOVE BOOK
    =========================== */
 
-// Step 1: Ask for confirmation
+// Delete → Ask for confirmation
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_request'])) {
     $id = $_POST['id'];
     $title = $_POST['title'];
@@ -25,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_request'])) {
     exit;
 }
 
-// Step 2: Confirm deletion
+// Delete → Confirm
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_delete'])) {
     $id = $conn->real_escape_string($_POST['id']);
     if ($conn->query("DELETE FROM books WHERE id='$id'")) {
@@ -37,17 +48,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_delete'])) {
     exit;
 }
 
-// Step 3: Cancel deletion
+// Delete → Cancel
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cancel_delete'])) {
     header("Location: " . $_SERVER['PHP_SELF']);
     exit;
 }
 
-/* ===========================
-   EDIT FEATURE
-   =========================== */
-
-// Step 1: Request edit form
+// Edit → Request edit form
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_request'])) {
     $id = $_POST['id'];
 
@@ -55,9 +62,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_request'])) {
     if ($result->num_rows == 1) {
         $book = $result->fetch_assoc();
 
-        // Pre-filled edit form
+        // Pre-filled form
         echo "<h2>Edit Book</h2>
-              <form method='post'>
+        <form method='post'>
                 <input type='hidden' name='id' value='{$book['id']}'>
                 <label>Title:</label><br>
                 <input type='text' name='title' value='{$book['title']}' required><br>
@@ -68,12 +75,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_request'])) {
                 <label>ISBN:</label><br>
                 <input type='text' name='isbn' value='{$book['isbn']}' required><br><br>
                 <button type='submit' name='save_edit'>Save Changes</button>
-              </form>";
+            </form>";
         exit;
     }
 }
 
-// Step 2: Save edit changes
+// Edit → Save changes
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['save_edit'])) {
     $id = $conn->real_escape_string($_POST['id']);
     $title = $conn->real_escape_string($_POST['title']);
@@ -89,14 +96,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['save_edit'])) {
     header("Location: " . $_SERVER['PHP_SELF']);
     exit;
 }
+
+/* ===========================
+BROWSE / VIEW CATALOG
+   =========================== */
+// Implemented in the HTML section below
+
+/* ===========================
+SEARCH (Placeholder)
+   =========================== */
+// TODO: Student 4 will implement this feature.
+
+/* ===========================
+BORROW / RETURN (Placeholder)
+   =========================== */
+// TODO: Student 5 will implement this feature.
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Librarian - Edit/Remove</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Librarian - Features</title>
+    <link rel="stylesheet" href="staile.css">
 </head>
 <body>
 <h1>LIBRARY SYSTEM</h1>
@@ -110,7 +132,16 @@ if (isset($_SESSION['message'])) {
 }
 ?>
 
-<!-- Catalog Table -->
+<!-- Create New Book -->
+<div>
+    <h2>Add New Book (Coming Soon)</h2>
+    <form method="post">
+        <input type="hidden" name="add_book" value="1">
+        <button type="submit">+ Add Book</button>
+    </form>
+</div>
+
+<!-- Edit/Remove -->
 <div>
     <h2>Catalog (Edit/Remove)</h2>
     <?php
@@ -156,14 +187,14 @@ if (isset($_SESSION['message'])) {
     ?>
 </div>
 
-<!-- Placeholder: Add Book -->
-<div>
-    <h2>Add Book (Coming Soon)</h2>
-</div>
-
-<!-- Placeholder: Search -->
+<!-- Search -->
 <div>
     <h2>Search (Coming Soon)</h2>
+</div>
+
+<!-- Borrow/Return -->
+<div>
+    <h2>Borrow/Return (Coming Soon)</h2>
 </div>
 
 <a href="sign_in.php">LOG OUT</a>

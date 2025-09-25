@@ -18,7 +18,7 @@ BORROW / RETURN (Placeholder)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User - Library Catalog</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="staile.css">
 </head>
 <body>
 <h1>LIBRARY SYSTEM</h1>
