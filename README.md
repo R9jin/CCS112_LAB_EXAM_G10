@@ -344,7 +344,6 @@ Each student works on:
 Before starting:
 
 ```bash
-git checkout develop
 git pull origin develop
 ```
 
