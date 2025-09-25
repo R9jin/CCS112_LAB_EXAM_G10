@@ -38,3 +38,27 @@ body {
 table {
     background-color: white;
 }
+/* ===== Borrow Section Styles ===== */
+.book-card {
+    display: inline-block;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px;
+    width: 200px;
+    text-align: center;
+    background: #f8f8f8;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.book-card:hover {
+    background: #e0e0e0;
+    transform: scale(1.05);
+}
+
+.book-link {
+    text-decoration: none;
+    color: #000;
+    font-weight: bold;
+}
