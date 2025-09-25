@@ -34,33 +34,7 @@ if (isset($_SESSION['message'])) {
 
 <!-- View Catalog -->
 <div>
-    <h2>Book Catalog</h2>
-    <?php
-    $result = $conn->query("SELECT * FROM books");
-    if ($result->num_rows > 0) {
-        echo "<table border='1' cellpadding='5' cellspacing='0'>
-                <tr>
-                    <th>ID</th>
-                    <th>TITLE</th>
-                    <th>AUTHOR</th>
-                    <th>YEAR</th>
-                    <th>ISBN</th>
-                </tr>";
-        while ($row = $result->fetch_assoc()) {
-            echo "<tr>
-                    <td>{$row['id']}</td>
-                    <td>{$row['title']}</td>
-                    <td>{$row['author']}</td>
-                    <td>{$row['publication_year']}</td>
-                    <td>{$row['isbn']}</td>
-                </tr>";
-        }
-        echo "</table>";
-    } else {
-        echo "No books found.";
-    }
-    $conn->close();
-    ?>
+    
 </div>
 
 <!-- Search -->
