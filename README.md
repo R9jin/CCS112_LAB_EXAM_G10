@@ -69,7 +69,7 @@ if ($conn->connect_error) {
 
 ---
 
-### 2. Student 1 – Add New Books
+### 2. Student 1 – Add New Books (Librarian Only)
 
 * **Form fields**: Title, Author, Publication Year, ISBN
 * **Notification**: `New Book Added Successfully!`
@@ -106,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['title'])) {
 
 ---
 
-### 3. Student 2 – Edit/Remove Books
+### 3. Student 2 – Edit/Remove Books (Librarian Only)
 
 * **Notifications**:
 
@@ -140,7 +140,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['title'])) {
 </table>
 ```
 
-**PHP Update/Delete**
+**PHP Update/Delete** 
 
 ```php
 // Edit
@@ -161,7 +161,7 @@ if (isset($_POST['confirm_delete'])) {
 
 ---
 
-### 4. Student 3 – Browse/View Catalog
+### 4. Student 3 – Browse/View Catalog (Librarian and User)
 
 **PHP Display**
 
@@ -214,7 +214,7 @@ if (in_array($column, $allowed_columns)) {
 
 ---
 
-### 6. Student 5 – Borrow/Return Books
+### 6. Student 5 – Borrow/Return Books (Librarian Only)
 
 * **Notifications**:
 
@@ -390,12 +390,24 @@ git push origin develop
 
 ### 6. Finalizing the Project
 
-* Merge develop → main via PR
-* Main = production-ready
+Make sure `develop` is updated:
 
-### 7. Check-In
+```bash
+git checkout develop
+git pull origin develop
+Switch to main and update:
+```
 
-* Bring laptops + internet
-* Demo directly from GitHub repo
+```bash
+git checkout main
+git pull origin main
+Push both branches to GitHub:
+```
 
+```bash
+git push origin develop
+git push origin main
+Open a Pull Request on GitHub to merge develop → main.
+main branch should always stay production-ready.
+```
 
