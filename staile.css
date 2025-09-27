@@ -23,6 +23,12 @@ a:hover {
 body {
     background-color: rgb(255, 148, 148);
     color: black;
+    display: flex;
+    justify-content: center;
+    align-items: left-align;
+    min-height: 100vh;
+    margin: 0;
+    flex-direction: column;
 }
 
 .myBtn {

@@ -13,7 +13,17 @@ CREATE NEW BOOK (Placeholder)
 // TODO: Student 1 will implement this feature.
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_book'])) {
     // Placeholder logic
-    $_SESSION['message'] = "Add book feature not yet implemented.";
+    $title = $_POST["title"];
+    $author = $_POST["author"];
+    $publication_year = $_POST["publication_year"];
+    $isbn = $_POST["isbn"];
+
+    if ($conn->query("INSERT INTO books (title, author, publication_year, isbn)
+                    VALUES ('$title', '$author', '$publication_year', '$isbn')")) {
+        $_SESSION['message'] = "New Book Added Successfully!";
+    } else {
+        $_SESSION['message'] = "Error: Something went wrong!";
+    }
     header("Location: " . $_SERVER['PHP_SELF']);
     exit;
 }
@@ -133,85 +143,25 @@ BORROW / RETURN (Placeholder)
     }
     ?>
 
-<<<<<<< HEAD
     <!-- Create New Book -->
     <div>
         <h2>Add New Book (Coming Soon)</h2>
         <form method="post">
-            <input type="hidden" name="add_book" value="1">
-            <button type="submit">+ Add Book</button>
+            <label for="title">Title:</label><br>
+            <input type="text" size="50" id="title" name="title" placeholder = "Enter title" required><br>
+
+            <label for="author">Author:</label><br>
+            <input type="text" size="50" id="author" name="author" placeholder = "Enter author"required><br>
+
+            <label for="publication_year">Year:</label><br>
+            <input type="text" size="50" id="publication_year" name="publication_year" placeholder = "Enter publication year" required><br>
+
+            <label for="isbn">isbn:</label><br>
+            <input type="text" size="50" id="isbn" name="isbn" placeholder = "Enter isbn" required><br><br>
+
+            <button type="submit" name="add_book">Add Book</button>
         </form>
     </div>
-=======
-<!-- Search -->
-<div>
-    <h2><!-- Search -->
-<div>
-    <h2>Search Books</h2>
-    <form method="get">
-        <label for="field">Search by:</label>
-        <select name="field" id="field" required>
-            <option value="title">Title</option>
-            <option value="author">Author</option>
-            <option value="publication_year">Year</option>
-            <option value="isbn">ISBN</option>
-        </select>
-        <input type="text" name="keyword" placeholder="Enter keyword" required>
-        <button type="submit" name="search">Search</button>
-    </form>
-
-    <?php
-    if (isset($_GET['search'])) {
-        $field   = $_GET['field'];
-        $keyword = $_GET['keyword'];
-
-        // Allow only known column names to prevent SQL injection
-        $allowed = ['title','author','publication_year','isbn'];
-        if (in_array($field, $allowed, true)) {
-
-            // Reconnect because the main connection was closed earlier
-            $conn = new mysqli("db", "root", "rootpassword", "librarydb", 3306);
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            }
-
-            // Use prepared statement for safety
-            $stmt = $conn->prepare("SELECT * FROM books WHERE $field LIKE ?");
-            $like = "%".$keyword."%";
-            $stmt->bind_param("s", $like);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
-                echo "<table border='1' cellpadding='5' cellspacing='0'>
-                        <tr>
-                            <th>ID</th><th>TITLE</th><th>AUTHOR</th>
-                            <th>YEAR</th><th>ISBN</th>
-                        </tr>";
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>
-                            <td>{$row['id']}</td>
-                            <td>{$row['title']}</td>
-                            <td>{$row['author']}</td>
-                            <td>{$row['publication_year']}</td>
-                            <td>{$row['isbn']}</td>
-                          </tr>";
-                }
-                echo "</table>";
-            } else {
-                echo "No matching books found.";
-            }
-            $stmt->close();
-            $conn->close();
-        } else {
-            echo "Invalid search field.";
-        }
-    }
-    ?>
-</div>
-</h2>
-</div>
->>>>>>> f0b2a76ca97be994e206a491ad976103ca03a0ff
 
     <!-- Edit/Remove -->
     <div>
