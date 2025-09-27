@@ -121,82 +121,84 @@ BORROW / RETURN (Placeholder)
     <link rel="stylesheet" href="staile.css">
 </head>
 <body>
-<h1>LIBRARY SYSTEM</h1>
-<h4>Librarian Panel</h4>
+<div class="container">
+    <h1>LIBRARY SYSTEM</h1>
+    <h4>Librarian Panel</h4>
 
-<!-- Notifications -->
-<?php
-if (isset($_SESSION['message'])) {
-    echo "<script>alert('{$_SESSION['message']}');</script>";
-    unset($_SESSION['message']);
-}
-?>
-
-<!-- Create New Book -->
-<div>
-    <h2>Add New Book (Coming Soon)</h2>
-    <form method="post">
-        <input type="hidden" name="add_book" value="1">
-        <button type="submit">+ Add Book</button>
-    </form>
-</div>
-
-<!-- Edit/Remove -->
-<div>
-    <h2>Catalog (Edit/Remove)</h2>
+    <!-- Notifications -->
     <?php
-    $result = $conn->query("SELECT * FROM books");
-    if ($result->num_rows > 0) {
-        echo "<table border='1' cellpadding='5' cellspacing='0'>
-                <tr>
-                    <th>ID</th>
-                    <th>TITLE</th>
-                    <th>AUTHOR</th>
-                    <th>YEAR</th>
-                    <th>ISBN</th>
-                    <th>EDIT</th>
-                    <th>DELETE</th>
-                </tr>";
-        while ($row = $result->fetch_assoc()) {
-            echo "<tr>
-                    <td>{$row['id']}</td>
-                    <td>{$row['title']}</td>
-                    <td>{$row['author']}</td>
-                    <td>{$row['publication_year']}</td>
-                    <td>{$row['isbn']}</td>
-                    <td>
-                        <form method='post' style='display:inline;'>
-                            <input type='hidden' name='id' value='{$row['id']}'>
-                            <button type='submit' name='edit_request'>Edit</button>
-                        </form>
-                    </td>
-                    <td>
-                        <form method='post' style='display:inline;'>
-                            <input type='hidden' name='id' value='{$row['id']}'>
-                            <input type='hidden' name='title' value='{$row['title']}'>
-                            <button type='submit' name='delete_request'>Delete</button>
-                        </form>
-                    </td>
-                </tr>";
-        }
-        echo "</table>";
-    } else {
-        echo "No books found.";
+    if (isset($_SESSION['message'])) {
+        echo "<script>alert('{$_SESSION['message']}');</script>";
+        unset($_SESSION['message']);
     }
-    $conn->close();
     ?>
-</div>
 
-<!-- Search -->
-<div>
-    <h2>Search (Coming Soon)</h2>
-</div>
+    <!-- Create New Book -->
+    <div>
+        <h2>Add New Book (Coming Soon)</h2>
+        <form method="post">
+            <input type="hidden" name="add_book" value="1">
+            <button type="submit">+ Add Book</button>
+        </form>
+    </div>
 
-<!-- Borrow/Return -->
-<div>
-    <h2>Borrow/Return (Coming Soon)</h2>
-</div>
+    <!-- Edit/Remove -->
+    <div>
+        <h2>Catalog (Edit/Remove)</h2>
+        <?php
+        $result = $conn->query("SELECT * FROM books");
+        if ($result->num_rows > 0) {
+            echo "<table border='1' cellpadding='5' cellspacing='0'>
+                    <tr>
+                        <th>ID</th>
+                        <th>TITLE</th>
+                        <th>AUTHOR</th>
+                        <th>YEAR</th>
+                        <th>ISBN</th>
+                        <th>EDIT</th>
+                        <th>DELETE</th>
+                    </tr>";
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr>
+                        <td>{$row['id']}</td>
+                        <td>{$row['title']}</td>
+                        <td>{$row['author']}</td>
+                        <td>{$row['publication_year']}</td>
+                        <td>{$row['isbn']}</td>
+                        <td>
+                            <form method='post' style='display:inline;'>
+                                <input type='hidden' name='id' value='{$row['id']}'>
+                                <button type='submit' name='edit_request'>Edit</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form method='post' style='display:inline;'>
+                                <input type='hidden' name='id' value='{$row['id']}'>
+                                <input type='hidden' name='title' value='{$row['title']}'>
+                                <button type='submit' name='delete_request'>Delete</button>
+                            </form>
+                        </td>
+                    </tr>";
+            }
+            echo "</table>";
+        } else {
+            echo "No books found.";
+        }
+        $conn->close();
+        ?>
+    </div>
 
-<a href="sign_in.php">LOG OUT</a>
+    <!-- Search -->
+    <div>
+        <h2>Search (Coming Soon)</h2>
+    </div>
+
+    <!-- Borrow/Return -->
+    <div>
+        <h2>Borrow/Return (Coming Soon)</h2>
+    </div>
+
+    <a href="sign_in.php">LOG OUT</a>
+</div>
 </body>
 </html>
