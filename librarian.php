@@ -189,7 +189,71 @@ if (isset($_SESSION['message'])) {
 
 <!-- Search -->
 <div>
-    <h2>Search (Coming Soon)</h2>
+    <h2><!-- Search -->
+<div>
+    <h2>Search Books</h2>
+    <form method="get">
+        <label for="field">Search by:</label>
+        <select name="field" id="field" required>
+            <option value="title">Title</option>
+            <option value="author">Author</option>
+            <option value="publication_year">Year</option>
+            <option value="isbn">ISBN</option>
+        </select>
+        <input type="text" name="keyword" placeholder="Enter keyword" required>
+        <button type="submit" name="search">Search</button>
+    </form>
+
+    <?php
+    if (isset($_GET['search'])) {
+        $field   = $_GET['field'];
+        $keyword = $_GET['keyword'];
+
+        // Allow only known column names to prevent SQL injection
+        $allowed = ['title','author','publication_year','isbn'];
+        if (in_array($field, $allowed, true)) {
+
+            // Reconnect because the main connection was closed earlier
+            $conn = new mysqli("db", "root", "rootpassword", "librarydb", 3306);
+            if ($conn->connect_error) {
+                die("Connection failed: " . $conn->connect_error);
+            }
+
+            // Use prepared statement for safety
+            $stmt = $conn->prepare("SELECT * FROM books WHERE $field LIKE ?");
+            $like = "%".$keyword."%";
+            $stmt->bind_param("s", $like);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+                echo "<table border='1' cellpadding='5' cellspacing='0'>
+                        <tr>
+                            <th>ID</th><th>TITLE</th><th>AUTHOR</th>
+                            <th>YEAR</th><th>ISBN</th>
+                        </tr>";
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr>
+                            <td>{$row['id']}</td>
+                            <td>{$row['title']}</td>
+                            <td>{$row['author']}</td>
+                            <td>{$row['publication_year']}</td>
+                            <td>{$row['isbn']}</td>
+                          </tr>";
+                }
+                echo "</table>";
+            } else {
+                echo "No matching books found.";
+            }
+            $stmt->close();
+            $conn->close();
+        } else {
+            echo "Invalid search field.";
+        }
+    }
+    ?>
+</div>
+</h2>
 </div>
 
 <!-- Borrow/Return -->
