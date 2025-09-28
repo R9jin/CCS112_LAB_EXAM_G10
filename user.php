@@ -196,7 +196,7 @@ if (isset($_GET['return_id'])) {
             SELECT br.id as borrow_id, b.title, br.borrow_date
             FROM borrowings br
             JOIN books b ON br.book_id = b.id
-            WHERE br.return_date IS NULL AND br.username = '$user_name'
+            WHERE br.return_date IS NULL AND br.user_name = '$user_name'
         ");
         if ($borrowed && $borrowed->num_rows > 0) {
             echo "<table border='1' cellpadding='5' cellspacing='0' width='100%'>
