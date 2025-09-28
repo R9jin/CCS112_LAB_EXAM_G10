@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result && $result->num_rows > 0) {
         $user = $result->fetch_assoc();
         $_SESSION['user'] = $user['username'];
-        if ($user['role'] === 'librarian') {
+        if ($user['role'] === 'admin') {
             header("Location: librarian.php");
         } else {
             header("Location: user.php");

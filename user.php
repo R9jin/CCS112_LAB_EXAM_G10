@@ -35,7 +35,7 @@ if (isset($_POST['borrow']) && isset($_POST['book_id'])) {
     } else {
         // ✅ FIXED: Use user_id, not user_name
         $conn->query("INSERT INTO borrowings (book_id, user_id, borrow_date) 
-                      VALUES ($book_id, $user_id, CURDATE())");
+                    VALUES ($book_id, $user_id, CURDATE())");
         $_SESSION['message'] = "Book borrowed successfully!";
     }
     header("Location: " . $_SERVER['PHP_SELF']);
@@ -64,10 +64,9 @@ if (isset($_GET['return_id'])) {
 <body>
 <div class="library-container">
 
-    <!-- Notifications -->
     <?php
     if (isset($_SESSION['message'])) {
-        echo "<p>{$_SESSION['message']}</p>";
+        echo "<script>alert('{$_SESSION['message']}');</script>";
         unset($_SESSION['message']);
     }
     ?>
@@ -174,25 +173,39 @@ if (isset($_GET['return_id'])) {
     <div class="box">
         <h3>Borrow a Book</h3>
         <?php
-        $available = $conn->query("SELECT * FROM books WHERE id NOT IN
-                    (SELECT book_id FROM borrowings WHERE return_date IS NULL)");
+        $available = $conn->query("
+            SELECT * FROM books
+            WHERE id NOT IN (SELECT book_id FROM borrowings WHERE return_date IS NULL)
+        ");
+
         if ($available && $available->num_rows > 0) {
-            echo "<ul>";
+            echo "<table border='1' cellpadding='5' cellspacing='0' width='100%'>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Action</th>
+                    </tr>";
+
             while ($row = $available->fetch_assoc()) {
-                echo "<li>
-                        {$row['title']} 
-                        <form method='post' style='display:inline'>
-                            <input type='hidden' name='book_id' value='{$row['id']}'>
-                            <button type='submit' name='borrow'>Borrow</button>
-                        </form>
-                    </li>";
+                echo "<tr>
+                        <td>{$row['title']}</td>
+                        <td>{$row['author']}</td>
+                        <td>
+                            <form method='post' style='display:inline'>
+                                <input type='hidden' name='book_id' value='{$row['id']}'>
+                                <button type='submit' name='borrow'>Borrow</button>
+                            </form>
+                        </td>
+                    </tr>";
             }
-            echo "</ul>";
+
+            echo "</table>";
         } else {
             echo "<p>No books available to borrow.</p>";
         }
         ?>
     </div>
+
 
     <!-- Your Borrowed Books -->
     <div class="box">

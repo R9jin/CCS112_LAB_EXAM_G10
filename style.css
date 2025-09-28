@@ -7,7 +7,7 @@
 
 body {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background: #ececec;
+    background: #535353;
     display: flex;
     justify-content: center;
     padding: 30px 0;
@@ -74,7 +74,7 @@ input[type="text"], input[type="password"], select {
 
 input[type="submit"], button {
     padding: 8px 16px;
-    background-color: #007acc;
+    background-color: #00b020;
     border: none;
     border-radius: 4px;
     color: #fff;
@@ -82,11 +82,11 @@ input[type="submit"], button {
 }
 
 input[type="submit"]:hover, button:hover {
-    background-color: #005fa3;
+    background-color: #01c836;
 }
 
 a {
-    color: #007acc;
+    color: #00cc1f;
     text-decoration: none;
 }
 
