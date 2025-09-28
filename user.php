@@ -1,171 +1,234 @@
 <?php
-session_start();
+session_start(); // Start session for login info and notifications
 
 // Connect to the database
 $conn = new mysqli("db", "root", "rootpassword", "librarydb", 3306);
+if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Get logged-in username from session
+$username = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+
+// Redirect if not logged in
+if (!$username) {
+    header("Location: index.php");
+    exit;
 }
 
-/* ===========================
-   BORROW LOGIC
-   =========================== */
-if (isset($_GET['borrow_id'])) {
-    $book_id = intval($_GET['borrow_id']);
-    $book = $conn->query("SELECT * FROM books WHERE id=$book_id")->fetch_assoc();
+// ✅ Fetch the logged-in user's ID
+$userResult = $conn->query("SELECT id FROM users WHERE username='$username'");
+if ($userResult && $userResult->num_rows > 0) {
+    $userRow = $userResult->fetch_assoc();
+    $user_id = $userRow['id'];
+} else {
+    die("User not found in database.");
+}
 
-    if (isset($_POST['borrow'])) {
-        $user_name = $_POST['user_name'];
-        $check = $conn->query("SELECT * FROM borrowings WHERE book_id=$book_id AND return_date IS NULL");
-
-        if ($check->num_rows > 0) {
-            $_SESSION['message'] = "Book is already borrowed!";
-        } else {
-            $conn->query("INSERT INTO borrowings (book_id, user_name, borrow_date) VALUES ($book_id, '$user_name', CURDATE())");
-            $_SESSION['message'] = "Book borrowed successfully!";
-        }
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
+// ===========================
+// BORROW LOGIC
+// ===========================
+if (isset($_POST['borrow']) && isset($_POST['book_id'])) {
+    $book_id = intval($_POST['book_id']);
+    $check = $conn->query("SELECT * FROM borrowings WHERE book_id=$book_id AND return_date IS NULL");
+    
+    if ($check->num_rows > 0) {
+        $_SESSION['message'] = "Book is already borrowed!";
+    } else {
+        // ✅ FIXED: Use user_id, not user_name
+        $conn->query("INSERT INTO borrowings (book_id, user_id, borrow_date) 
+                      VALUES ($book_id, $user_id, CURDATE())");
+        $_SESSION['message'] = "Book borrowed successfully!";
     }
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+// ===========================
+// RETURN LOGIC
+// ===========================
+if (isset($_GET['return_id'])) {
+    $return_id = intval($_GET['return_id']);
+    $conn->query("UPDATE borrowings SET return_date=CURDATE() WHERE id=$return_id");
+    $_SESSION['message'] = "Book returned successfully!";
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User - Library Catalog</title>
-    <link rel="stylesheet" href="staile.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Library System (User)</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>LIBRARY SYSTEM</h1>
-    <h4>User Panel</h4>
+<div class="library-container">
 
     <!-- Notifications -->
     <?php
     if (isset($_SESSION['message'])) {
-        echo "<script>alert('{$_SESSION['message']}');</script>";
+        echo "<p>{$_SESSION['message']}</p>";
         unset($_SESSION['message']);
     }
     ?>
 
-    <!-- View Catalog -->
-    <div>
-        <h2>Book Catalog</h2>
+    <h1>ONLINE LIBRARY SYSTEM</h1>
+    <h2>Welcome, <?= htmlspecialchars($username) ?></h2>
+
+    <!-- LOG OUT button -->
+    <form method="post" action="index.php">
+        <button type="submit">LOG OUT</button>
+    </form>
+
+    <!-- Book Catalog -->
+    <div class="box">
+        <h3>Book Catalog</h3>
         <?php
-        $result = $conn->query("SELECT * FROM books");
-
+        $result = $conn->query("SELECT id, title, author, publication_year, isbn FROM books");
         if ($result && $result->num_rows > 0) {
-            echo "
-            <table border='1' cellpadding='5' cellspacing='0'>
-                <tr>
-                    <th>ID</th>
-                    <th>TITLE</th>
-                    <th>AUTHOR</th>
-                    <th>YEAR</th>
-                    <th>ISBN</th>
-                    <th>Status</th>
-                </tr>
-            ";
-
+            echo "<table border='1' cellpadding='5' cellspacing='0' width='100%'>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Year</th>
+                        <th>ISBN</th>
+                        <th>Status</th>
+                    </tr>";
             while ($row = $result->fetch_assoc()) {
                 $book_id = $row['id'];
                 $check = $conn->query("SELECT * FROM borrowings WHERE book_id=$book_id AND return_date IS NULL");
-                $is_borrowed = $check->num_rows > 0;
-
-                echo "
-                <tr>
-                    <td>{$row['id']}</td>
-                    <td>{$row['title']}</td>
-                    <td>{$row['author']}</td>
-                    <td>{$row['publication_year']}</td>
-                    <td>{$row['isbn']}</td>
-                    <td>" . ($is_borrowed ? "Borrowed" : "Available") . "</td>
-                </tr>
-                ";
+                $status = ($check->num_rows > 0) ? "Borrowed" : "Available";
+                echo "<tr>
+                        <td>{$row['id']}</td>
+                        <td>{$row['title']}</td>
+                        <td>{$row['author']}</td>
+                        <td>{$row['publication_year']}</td>
+                        <td>{$row['isbn']}</td>
+                        <td>$status</td>
+                    </tr>";
             }
-
             echo "</table>";
         } else {
-            echo "No books found.";
+            echo "<p>No books found.</p>";
         }
         ?>
     </div>
 
-    <!-- Search -->
-    <div>
-        <h2>HEHEHEH TRY BOISD</h2>
+    <!-- search books -->
+    <div class="box">
+        <h2>Search Book</h2>
+        <form action="" method="post">
+            <label for="to_be_searched">Search term:</label><br>
+            <input type="text" size="50" id="to_be_searched" name="to_be_searched" placeholder="Enter keyword" required><br><br>
+
+            <label for="column">Search by:</label><br>
+            <select name="column" id="column" required>
+                <option value="id">ID</option>
+                <option value="title">Title</option>
+                <option value="author">Author</option>
+                <option value="publication_year">Publication Year</option>
+                <option value="isbn">ISBN</option>
+            </select><br><br>
+
+            <input type="submit" name="search" value="Search">
+        </form>
+
+        <?php
+        if (isset($_POST['search']) && !empty($_POST["to_be_searched"])) {
+            $search = $_POST["to_be_searched"];
+            $column = $_POST["column"];
+
+            $allowed_columns = ['id', 'title', 'author', 'publication_year', 'isbn'];
+            if (!in_array($column, $allowed_columns)) die("Invalid column selected.");
+
+            $search_escaped = $conn->real_escape_string($search);
+            $result = $conn->query("SELECT * FROM books WHERE $column LIKE '%$search_escaped%'");
+
+            if ($result && $result->num_rows > 0) {
+                echo "<br><table border='1' cellpadding='5' cellspacing='0' width='100%'>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Publication Year</th>
+                            <th>ISBN</th>
+                        </tr>";
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr>
+                            <td>{$row['id']}</td>
+                            <td>{$row['title']}</td>
+                            <td>{$row['author']}</td>
+                            <td>{$row['publication_year']}</td>
+                            <td>{$row['isbn']}</td>
+                        </tr>";
+                }
+                echo "</table>";
+            } else {
+                echo "No books found.";
+            }
+        }
+        ?>
     </div>
 
     <!-- Borrow Section -->
-    <!-- Borrow Section -->
-<div>
-    <h2>Borrow a Book</h2>
-    <style>
-        .book-card {
-            display: inline-block;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px;
-            width: 200px;
-            text-align: center;
-            background: #f8f8f8;
-            cursor: pointer;
-            transition: 0.3s;
+    <div class="box">
+        <h3>Borrow a Book</h3>
+        <?php
+        $available = $conn->query("SELECT * FROM books WHERE id NOT IN
+                    (SELECT book_id FROM borrowings WHERE return_date IS NULL)");
+        if ($available && $available->num_rows > 0) {
+            echo "<ul>";
+            while ($row = $available->fetch_assoc()) {
+                echo "<li>
+                        {$row['title']} 
+                        <form method='post' style='display:inline'>
+                            <input type='hidden' name='book_id' value='{$row['id']}'>
+                            <button type='submit' name='borrow'>Borrow</button>
+                        </form>
+                    </li>";
+            }
+            echo "</ul>";
+        } else {
+            echo "<p>No books available to borrow.</p>";
         }
-        .book-card:hover {
-            background: #e0e0e0;
-            transform: scale(1.05);
+        ?>
+    </div>
+
+    <!-- ✅ FIXED SECTION -->
+    <div class="box">
+        <h2>Your Borrowed Books</h2>
+        <?php
+        $borrowed = $conn->query("
+            SELECT br.id as borrow_id, b.title, br.borrow_date
+            FROM borrowings br
+            JOIN books b ON br.book_id = b.id
+            WHERE br.return_date IS NULL AND br.user_id = $user_id
+        ");
+        if ($borrowed && $borrowed->num_rows > 0) {
+            echo "<table border='1' cellpadding='5' cellspacing='0' width='100%'>
+                    <tr>
+                        <th>Book Title</th>
+                        <th>Borrow Date</th>
+                        <th>Return</th>
+                    </tr>";
+            while ($row = $borrowed->fetch_assoc()) {
+                echo "<tr>
+                        <td>{$row['title']}</td>
+                        <td>{$row['borrow_date']}</td>
+                        <td>
+                            <a href='?return_id={$row['borrow_id']}' onclick='return confirm(\"Return this book?\")'>Return</a>
+                        </td>
+                    </tr>";
+            }
+            echo "</table>";
+        } else {
+            echo "<p>You have no borrowed books.</p>";
         }
-        .book-link {
-            text-decoration: none;
-            color: #000;
-            font-weight: bold;
-        }
-    </style>
+        ?>
+    </div>
 
-    <?php if (!isset($_GET['borrow_id'])): ?>
-        <div style="display:flex; flex-wrap:wrap;">
-            <?php
-            $available = $conn->query("SELECT * FROM books WHERE id NOT IN 
-                (SELECT book_id FROM borrowings WHERE return_date IS NULL)");
-            if ($available->num_rows > 0):
-                while ($row = $available->fetch_assoc()): ?>
-                    <a class="book-link" href="?borrow_id=<?= $row['id'] ?>">
-                        <div class="book-card">
-                            <?= $row['title'] ?>
-                        </div>
-                    </a>
-                <?php endwhile;
-            else:
-                echo "<p>No books available to borrow.</p>";
-            endif;
-            ?>
-        </div>
-    <?php else: ?>
-        <?php if ($book): ?>
-            <div style="border:1px solid #444; padding:20px; border-radius:10px; width:400px; background:#fafafa;">
-                <h3><?= $book['title'] ?></h3>
-                <p><strong>Author:</strong> <?= $book['author'] ?></p>
-                <p><strong>Year:</strong> <?= $book['publication_year'] ?></p>
-                <p><strong>ISBN:</strong> <?= $book['isbn'] ?></p>
-
-                <form method="post">
-                    <label>Your Name: </label>
-                    <input type="text" name="user_name" required>
-                    <button type="submit" name="borrow">Confirm Borrow</button>
-                </form>
-
-                <p><a href="<?= $_SERVER['PHP_SELF'] ?>">Back to Available Books</a></p>
-            </div>
-        <?php endif; ?>
-    <?php endif; ?>
 </div>
-<br><br>
-    <a href="sign_in.php">LOG OUT</a>
+<?php $conn->close(); ?>
 </body>
 </html>
-<?php $conn->close(); ?>

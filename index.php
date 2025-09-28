@@ -1,61 +1,63 @@
 <?php
-// Start a session to store login data (like who is logged in)
 session_start();
 
-// Initialize error message (in case login fails)
+// Connect to DB
+$conn = new mysqli("db", "root", "rootpassword", "librarydb", 3306);
+if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
+
+// Initialize error
 $error = "";
 
-// Check if the request method is POST (form was submitted)
+// Only process login if form submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Collect form data
-    $username = $_POST["username"];
-    $password = $_POST["password"];
+    $username = isset($_POST['username']) ? $conn->real_escape_string($_POST['username']) : '';
+    $password = isset($_POST['password']) ? $conn->real_escape_string($_POST['password']) : '';
 
-    // Check credentials for normal user
-    if ($username == "user" && $password == "123") {
-        // Store session variable for logged-in user
-        $_SESSION["user"] = $username;
+    $sql = "SELECT * FROM users WHERE username='$username' AND password='$password'";
+    $result = $conn->query($sql);
 
-        // Redirect to user dashboard
-        header("Location: user.php");
+    if ($result && $result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+        $_SESSION['user'] = $user['username'];
+        if ($user['role'] === 'librarian') {
+            header("Location: librarian.php");
+        } else {
+            header("Location: user.php");
+        }
         exit;
+    } else {
+        $error = "Invalid login credentials.";
     }
-    // Check credentials for librarian
-    else if ($username == "librarian" && $password == "1234") {
-        $_SESSION["user"] = $username;
-
-        // Redirect to librarian dashboard
-        header("Location: librarian.php");
-        exit;
-    }
-    // If no match, login fails (you could add error handling here)
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library Login</title>
-    <!-- External stylesheet -->
-    <link rel="stylesheet" href="staile.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Main heading -->
+<div class="library-container">
     <h1>WELCOME TO THE LIBRARY SYSTEM</h1>
+    <br>
+    <?php if ($error): ?>
+        <p style="color:red;"><?php echo $error; ?></p>
+    <?php endif; ?>
 
-    <!-- Login form -->
     <form action="" method="post">
         <label for="username">USER NAME:</label>
         <input type="text" name="username" required><br><br>
 
         <label for="password">PASSWORD:</label>
-        <input type="password" name="password" required>
+        <input type="password" name="password" required><br><br>
 
-        <!-- Submit button -->
         <input type="submit" value="Sign-In">
     </form>
+</div>
 
 </body>
 </html>
