@@ -141,7 +141,6 @@ if (isset($_GET['return_id'])) {
 
             $allowed_columns = ['id', 'title', 'author', 'publication_year', 'isbn'];
             if (!in_array($column, $allowed_columns)) die("Invalid column selected.");
-
             $search_escaped = $conn->real_escape_string($search);
             $result = $conn->query("SELECT * FROM books WHERE $column LIKE '%$search_escaped%'");
 
@@ -195,7 +194,7 @@ if (isset($_GET['return_id'])) {
         ?>
     </div>
 
-    <!-- ✅ FIXED SECTION -->
+    <!-- Your Borrowed Books -->
     <div class="box">
         <h2>Your Borrowed Books</h2>
         <?php
