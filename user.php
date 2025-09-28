@@ -6,12 +6,21 @@ $conn = new mysqli("db", "root", "rootpassword", "librarydb", 3306);
 if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
 // Get logged-in username from session
-$user_name = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+$username = isset($_SESSION['user']) ? $_SESSION['user'] : null;
 
 // Redirect if not logged in
-if (!$user_name) {
+if (!$username) {
     header("Location: index.php");
     exit;
+}
+
+// ✅ Fetch the logged-in user's ID
+$userResult = $conn->query("SELECT id FROM users WHERE username='$username'");
+if ($userResult && $userResult->num_rows > 0) {
+    $userRow = $userResult->fetch_assoc();
+    $user_id = $userRow['id'];
+} else {
+    die("User not found in database.");
 }
 
 // ===========================
@@ -24,7 +33,9 @@ if (isset($_POST['borrow']) && isset($_POST['book_id'])) {
     if ($check->num_rows > 0) {
         $_SESSION['message'] = "Book is already borrowed!";
     } else {
-        $conn->query("INSERT INTO borrowings (book_id, user_name, borrow_date) VALUES ($book_id, '$user_name', CURDATE())");
+        // ✅ FIXED: Use user_id, not user_name
+        $conn->query("INSERT INTO borrowings (book_id, user_id, borrow_date) 
+                      VALUES ($book_id, $user_id, CURDATE())");
         $_SESSION['message'] = "Book borrowed successfully!";
     }
     header("Location: " . $_SERVER['PHP_SELF']);
@@ -62,7 +73,7 @@ if (isset($_GET['return_id'])) {
     ?>
 
     <h1>ONLINE LIBRARY SYSTEM</h1>
-    <h2>Welcome, <?= htmlspecialchars($user_name) ?></h2>
+    <h2>Welcome, <?= htmlspecialchars($username) ?></h2>
 
     <!-- LOG OUT button -->
     <form method="post" action="index.php">
@@ -124,17 +135,12 @@ if (isset($_GET['return_id'])) {
         </form>
 
         <?php
-        // handle search form
         if (isset($_POST['search']) && !empty($_POST["to_be_searched"])) {
             $search = $_POST["to_be_searched"];
             $column = $_POST["column"];
 
-            $conn = new mysqli("db", "root", "rootpassword", "librarydb", 3306);
-            if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
-
             $allowed_columns = ['id', 'title', 'author', 'publication_year', 'isbn'];
             if (!in_array($column, $allowed_columns)) die("Invalid column selected.");
-
             $search_escaped = $conn->real_escape_string($search);
             $result = $conn->query("SELECT * FROM books WHERE $column LIKE '%$search_escaped%'");
 
@@ -196,7 +202,7 @@ if (isset($_GET['return_id'])) {
             SELECT br.id as borrow_id, b.title, br.borrow_date
             FROM borrowings br
             JOIN books b ON br.book_id = b.id
-            WHERE br.return_date IS NULL AND br.user_name = '$user_name'
+            WHERE br.return_date IS NULL AND br.user_id = $user_id
         ");
         if ($borrowed && $borrowed->num_rows > 0) {
             echo "<table border='1' cellpadding='5' cellspacing='0' width='100%'>

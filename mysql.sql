@@ -44,7 +44,7 @@ INSERT INTO books (title, author, publication_year, isbn) VALUES
 ('To Kill a Mockingbird', 'Harper Lee', 1960, '9780061120084'),
 ('1984', 'George Orwell', 1949, '9780451524935'),
 ('The Great Gatsby', 'F. Scott Fitzgerald', 1925, '9780743273565'),
-('Pride and Prejudice', 'Jane Austen', 1813, '9780141439518'),
+('Pride and Prejudice', 'Jane Austen', 1913, '9780141439518'),
 ('The Hobbit', 'J.R.R. Tolkien', 1937, '9780345339683');
 
 -- 7. Sample data for borrowings
